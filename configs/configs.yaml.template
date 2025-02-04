@@ -1,0 +1,11 @@
+local:
+  address: 127.0.0.1
+  account: n8n
+  password: n8n
+  dbname: bigdata
+
+remote:
+  address: 127.0.0.1
+  account: n8n
+  password: n8n
+  dbname: n8n
