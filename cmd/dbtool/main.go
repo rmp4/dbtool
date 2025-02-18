@@ -12,9 +12,11 @@ import (
 )
 
 var (
-	cfgFile string
-	name    string
-	sugar   *zap.SugaredLogger
+	cfgFile  string
+	name     string
+	dir      string
+	filename string
+	sugar    *zap.SugaredLogger
 )
 var rootCmd = &cobra.Command{
 	Use:   "dbtool",
@@ -28,10 +30,12 @@ func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.AddCommand(backupCmd)
 	rootCmd.AddCommand(restoreCmd)
-	rootCmd.AddCommand(createCmd)
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/config.toml)")
+	rootCmd.AddCommand(buildCmd)
+	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "configs/configs.yaml", "config file (default is configs/configs.yaml)")
 	rootCmd.PersistentFlags().StringVarP(&name, "name", "n", "local", "config name")
-
+	buildCmd.PersistentFlags().StringVarP(&dir, "dir", "d", "sql", "sql file directory")
+	backupCmd.PersistentFlags().StringVarP(&filename, "filename", "f", "backup.dump", "backup file name")
+	restoreCmd.PersistentFlags().StringVarP(&filename, "filename", "f", "backup.dump", "restore file name")
 }
 func initConfig() {
 	if cfgFile != "" {
@@ -44,14 +48,12 @@ func initConfig() {
 	viper.AutomaticEnv() // 讀取匹配的環境變數
 
 	if err := viper.ReadInConfig(); err == nil {
-
 		sugar.Debugf("Using config file: %s\n\r", viper.ConfigFileUsed())
 	} else {
 		sugar.Debugf("Error reading config file: %s \n", err)
 	}
 }
 func main() {
-	rootCmd.AddCommand(backupCmd, restoreCmd)
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -63,5 +65,6 @@ func getDBConfig(environment string) configs.DatabaseConfig {
 		Account:  viper.GetString(fmt.Sprintf("%s.account", environment)),
 		Password: viper.GetString(fmt.Sprintf("%s.password", environment)),
 		DBName:   viper.GetString(fmt.Sprintf("%s.dbname", environment)),
+		Port:     viper.GetString(fmt.Sprintf("%s.port", environment)),
 	}
 }

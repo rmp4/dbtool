@@ -14,7 +14,7 @@ var backupCmd = &cobra.Command{
 	Short: "備份 PostgreSQL 資料庫",
 	Run: func(cmd *cobra.Command, args []string) {
 		localConfig := getDBConfig(name)
-		command.Backup(localConfig, "backup.dump")
+		command.Backup(localConfig, filename)
 	},
 }
 var restoreCmd = &cobra.Command{
@@ -22,16 +22,16 @@ var restoreCmd = &cobra.Command{
 	Short: "還原 PostgreSQL 資料庫",
 	Run: func(cmd *cobra.Command, args []string) {
 		localConfig := getDBConfig(name)
-		command.Restore(localConfig, "backup.dump")
+		command.Restore(localConfig, filename)
 	},
 }
 
-var createCmd = &cobra.Command{
+var buildCmd = &cobra.Command{
 	Use:   "create",
 	Short: "建立 PostgreSQL 資料庫",
 	Run: func(cmd *cobra.Command, args []string) {
 		localConfig := getDBConfig(name)
-		dirPath := "sql"
+		dirPath := dir
 		err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
